@@ -43,29 +43,33 @@ function get_chrominance_quant_table(quality)
     return replace!(Int64.(round.(JPEG_quality_multiplier(quality) .* standard_chrominance_table_q50)), 0 => 1)
 end
 
-function find_nearest_quality_factor_luminance(mle_matrix, values_to_consider)
+function find_nearest_quality_factor_luminance(mle_matrix, reliable_indicators)
     nearest_dist = Inf
-    nearest_q = -1
-    for q in 1:99 #Just ignore the 100 case because that is the all 1's 
+    nearest_q = [-1]
+    for q in 1:100
         quant_table = get_luminance_quant_table(q)
-        mae = sum(abs.(mle_matrix[values_to_consider] .- quant_table[values_to_consider]))
+        mae = sum(abs.(mle_matrix[reliable_indicators] .- quant_table[reliable_indicators]))
         if mae < nearest_dist
             nearest_dist = mae
-            nearest_q = q
+            nearest_q = [q]
+        elseif mae == nearest_dist
+            append!(nearest_q, q)
         end
     end
     return nearest_q
 end
 
-function find_nearest_quality_factor_chrominance(mle_matrix, values_to_consider)
+function find_nearest_quality_factor_chrominance(mle_matrix, reliable_indicators)
     nearest_dist = Inf
-    nearest_q = -1
-    for q in 1:99 #Just ignore the 100 case because that is the all 1's 
+    nearest_q = [-1]
+    for q in 1:100
         quant_table = get_chrominance_quant_table(q)
-        mae = sum(abs.(mle_matrix[values_to_consider] .- quant_table[values_to_consider]))
+        mae = sum(abs.(mle_matrix[reliable_indicators] .- quant_table[reliable_indicators]))
         if mae < nearest_dist
             nearest_dist = mae
-            nearest_q = q
+            nearest_q = [q]
+        elseif mae == nearest_dist
+            append!(nearest_q, q)
         end
     end
     return nearest_q

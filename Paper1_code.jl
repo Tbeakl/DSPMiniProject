@@ -39,8 +39,10 @@ end
 
 function integral_of_sum_G(Ys, r, q, b)
     # For the time being assume that k is in the range 0..255
-    max_k = Int64(ceil(maximum(Ys) / q))
-    k = -max_k:max_k
+
+    max_k = Int64(ceil(maximum(Ys + b) / q))
+    min_k = Int64(floor(min(Ys - b) / q))
+    k = -min_k:max_k
     sum_G(x) = sum(G.(x .- r*q .- k.*q, b))
 
     # Approximate the integral by using a left reimann sum
